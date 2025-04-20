@@ -1,0 +1,4116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Assistant | Enhanced Version</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <style>
+    .main-content {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.desktop-visible {
+  display: none;
+}
+
+.main-chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Saat di desktop (lebar >= 1024px), tampilkan sidebar secara permanen */
+@media (min-width: 1024px) {
+  .history-sidebar {
+    position: relative;
+    right: 0 !important;
+    display: block;
+    width: 300px;
+    height: 100vh;
+    border-right: 1px solid var(--border);
+    z-index: 1;
+  }
+
+  .history-sidebar.desktop-visible {
+    display: block;
+  }
+
+  .main-chat-area {
+    width: calc(100% - 600px);
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+  }
+
+  .chat-container {
+    padding-top: 6rem;
+    padding-bottom: 12rem;
+    overflow-y: auto;
+  }
+
+  .input-container {
+    position: sticky;
+    bottom: 0;
+  }
+}
+@media (min-width: 1024px) {
+  .main-chat-area {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .input-container,
+  .header {
+    max-width: 1410px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .header {
+    left: auto;
+    right: auto;
+  }
+}
+@media (min-width: 1024px) {
+  .message-group {
+    max-width: 1010px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .user-message-container,
+  .assistant-message-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #6366f1;
+            --background-dark: #0f172a;
+            --card-dark: #1e293b;
+            --text-dark: #f8fafc;
+            --text-secondary-dark: #94a3b8;
+            --border-dark: #334155;
+            --background-light: #f8fafc;
+            --card-light: #ffffff;
+            --text-light: #0f172a;
+            --text-secondary-light: #64748b;
+            --border-light: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        .theme-dark {
+            --background: var(--background-dark);
+            --card: var(--card-dark);
+            --text: var(--text-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --border: var(--border-dark);
+        }
+
+        .theme-light {
+            --background: var(--background-light);
+            --card: var(--card-light);
+            --text: var(--text-light);
+            --text-secondary: var(--text-secondary-light);
+            --border: var(--border-light);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        .header {
+            background-color: var(--card);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            border: 2px solid var(--border);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Orbitron', 'Poppins', sans-serif;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            gap: 0.25rem;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.0rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .history-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.0rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .history-btn:hover {
+            color: var(--text);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .new-chat-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.6rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .new-chat-btn:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .credit {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8.5rem 1rem 12rem 1rem;
+            scroll-behavior: smooth;
+            background: var(--background);
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+            animation: fadeIn 1s ease-out;
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            
+        }
+
+        .welcome-message h2 {
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .welcome-message p {
+            margin-bottom: 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature-item {
+            background-color: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .feature-text {
+            font-size: 0.5rem;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .message-group {
+            margin: 1.5rem 0;
+            animation: fadeIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 1rem 1.25rem;
+            border-radius: 1.25rem;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 0.75rem;
+        }
+
+        .message pre {
+            font-family: 'Fira Code', monospace;
+            background-color: #282c34;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            overflow-x: auto;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(79, 70, 229, 0.2);
+            border: none;
+            border-radius: 0.3rem;
+            padding: 0.3rem 0.6rem;
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            z-index: 2;
+        }
+
+        .copy-button:hover {
+            background: rgba(79, 70, 229, 0.4);
+        }
+
+        .copy-button i {
+            font-size: 0.9rem;
+        }
+
+        .message code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            padding: 0.2em 0.4em;
+            border-radius: 0.3em;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+        }
+
+        .message strong {
+            font-weight: 600;
+        }
+
+        .message ul, .message ol {
+            padding-left: 1.5rem;
+            margin: 0.75rem 0;
+        }
+
+        .message li {
+            margin-bottom: 0.5rem;
+        }
+
+        .message-content {
+            margin-bottom: 0.5rem;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .message-time {
+            margin-left: auto;
+            font-size: 8px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .message-action {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.3rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .message-action:hover {
+            color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .message-action span {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .message-action span {
+                display: inline;
+            }
+        }
+
+        .user-message-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .assistant-message-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+@media (min-width: 1024px) {
+    .welcome-message {
+        margin-left: auto; /* Geser ke kanan */
+        margin-right: 475px; /* Beri jarak dari tepi kanan */
+    }
+}
+        .user-message {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border-bottom-right-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);
+        }
+
+        .assistant-message {
+            background-color: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background-color: var(--card);
+            border-radius: 1.25rem;
+            border-bottom-left-radius: 0.5rem;
+            margin: 1rem 0;
+            max-width: 5rem;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--border);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out both, colorChange 5s infinite alternate;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @keyframes colorChange {
+            0% { background-color: #4f46e5; }
+            25% { background-color: #06b6d4; }
+            50% { background-color: #10b981; }
+            75% { background-color: #f59e0b; }
+            100% { background-color: #ef4444; }
+        }
+
+.input-container {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 0.9rem;  /* Diubah ke titik */
+    background-color: var(--background);
+    border-top: 1px solid var(--border);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0 0.5rem;
+            height: 20px; 
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .action-button:hover {
+            color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .message-input-container {
+            display: flex;
+            gap: 0.75rem;
+            width: 100%;
+            background-color: var(--card);
+            padding: 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border);
+        }
+
+        #prompt {
+            flex: 1;
+            padding: 0.75rem 1.25rem;
+            border-radius: 9999px;
+            border: none;
+            background-color: transparent;
+            color: var(--text);
+            font-size: 0.8rem;
+            outline: none;
+            resize: none;
+            overflow-y: hidden;
+            min-height: 45px;
+            max-height: 150px;
+            line-height: 1.5;
+        }
+
+        #prompt::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            background: #374151;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+.toast {
+    position: fixed;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000; /* Tetap tinggi tapi tidak menghalangi elemen interaktif */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    pointer-events: none; /* Tambahkan ini agar klik bisa menembus toast */
+}
+
+.toast.show {
+    opacity: 1;
+    pointer-events: none; /* Tetap non-interaktif saat visible */
+}
+
+        /* File Upload Styles */
+        .upload-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        .file-preview {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            gap: 0.5rem;
+        }
+
+        .file-icon {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8rem;
+        }
+
+        .file-name {
+            font-weight: 500;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+        }
+
+        /* History Sidebar */
+        .history-sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: var(--card);
+            border-left: 1px solid var(--border);
+            transition: right 0.3s ease;
+            z-index: 20;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .history-sidebar.open {
+            right: 0;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .history-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .close-history {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .history-item.active {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .history-item-title {
+            font-weight: 500;
+            font-size: 0.7rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-preview {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .history-actions {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .clear-history {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-history:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+        }
+
+        /* File upload modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.0rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mode-option {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .mode-option:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .mode-option i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-option span {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        .mode-option p {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .camera-container {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #camera-preview {
+            width: 100%;
+            display: block;
+            background-color: #000;
+            border-radius: 0.5rem;
+        }
+
+        .camera-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .capture-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .switch-camera {
+            background-color: var(--background);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-image-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .copy-image-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .copy-image-button i {
+            font-size: 0.9rem;
+        }
+
+        /* Hidden file input */
+        #file-input, #camera-input {
+            display: none;
+        }
+
+        /* Responsive */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0.75rem 1rem;
+            }
+
+            .message {
+                max-width: 90%;
+                margin: 0.75rem 0;
+                padding: 0.75rem 1rem;
+            }
+
+            .send-btn span {
+                display: none;
+            }
+
+            .copy-button {
+                padding: 0.2rem 0.4rem;
+            }
+
+            .copy-button span {
+                display: none;
+            }
+
+            .history-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .welcome-features {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+.cancel-edit-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 9999px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.cancel-edit-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+@media (max-width: 768px) {
+  .cancel-edit-btn span {
+    display: none;
+  }
+  .cancel-edit-btn {
+    padding: 0.75rem;
+  }
+}/* Edit Message Styles */
+.message-group.editing {
+    position: relative;
+}
+/* Inline Edit Styles */
+.message-edit-container {
+  position: relative;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.message-edit-textarea {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 2px solid var(--primary-color);
+  background-color: var(--card);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  resize: none;
+  min-height: 100px;
+  outline: none;
+}
+
+.message-edit-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+.message-edit-save {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.message-edit-save:hover {
+  background: var(--primary-hover);
+}
+
+.message-edit-cancel {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 10px;
+}
+
+.message-edit-cancel:hover {
+  background: var(--background);
+}
+
+.message-editing {
+  position: relative;
+}
+
+.message-editing::after {
+  content: "Editing";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.message-content.editable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.message-content.editable:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+
+/* Enhanced cancel button and edit indicator in input container */
+.input-container.editing {
+    position: relative;
+}
+
+.edit-mode-indicator {
+    position: absolute;
+    top: -2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 5;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    white-space: nowrap;
+}
+
+/* Perbaikan CSS untuk tombol bahasa */
+.language-button-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 40px; /* Lebar minimum untuk mobile */
+}
+
+.language-label {
+    font-size: 0.8rem;
+    display: none;
+}
+
+.language-indicator {
+    position: static;
+    width: auto;
+    height: auto;
+    font-size: 0.9rem;
+    background: none;
+    color: inherit;
+    border: none;
+}
+
+/* Perbaikan khusus untuk mobile */
+@media (max-width: 768px) {
+    .language-button-container {
+        padding: 1.6rem; /* Lebih besar untuk sentuhan jari */
+        min-width: 44px; /* Ukuran minimum yang disarankan Apple untuk touch target */
+        right: 20px;
+    }
+    
+    .language-button-container i {
+        font-size: 1.3rem; /* Perbesar ikon */
+    }
+    
+    .language-label {
+        display: none;
+    }
+    
+    .language-indicator {
+        font-size: 1rem; /* Perbesar indikator bahasa */
+    }
+    
+    /* Pastikan jarak yang cukup antara tombol aksi */
+    .input-actions {
+        gap: 0.75rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .language-label {
+        display: inline;
+    }
+    
+    .language-button-container {
+        padding: 0.5rem 1rem;
+    }
+}
+.edit-indicator {
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.assistant-message-container .edit-indicator {
+  right: auto;
+  left: 20px;
+}
+/* Add this to your existing CSS */
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.loading-indicator.show {
+    opacity: 1;
+}
+
+.loading-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+<style>
+/* Tambahkan ini di bagian CSS */
+.history-item-actions {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    gap: 0.25rem;
+}
+
+.history-item:hover .history-item-actions {
+    display: flex;
+}
+
+.history-item-action {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.25rem;
+    border-radius: 0.3rem;
+    transition: all 0.2s ease;
+}
+
+.history-item-action:hover {
+    color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+.history-item-title-container {
+    position: relative;
+    padding-right: 2rem;
+}
+
+.history-item-title-edit {
+    display: none;
+    width: 100%;
+    background: var(--background);
+    border: 1px solid var(--primary-color);
+    color: var(--text);
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.history-item.editing .history-item-title {
+    display: none;
+}
+
+.history-item.editing .history-item-title-edit {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .history-item-actions {
+        display: flex;
+        position: static;
+        margin-top: 0.25rem;
+        justify-content: flex-end;
+    }
+}
+</style><style>
+/* Ganti CSS sebelumnya dengan ini */
+.history-item {
+    position: relative;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+
+.history-item-menu {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
+}
+
+/* Ganti bagian CSS untuk history-item-menu-btn */
+.history-item-menu-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.3rem;
+    transition: all 0.2s ease;
+    opacity: 1; /* Selalu terlihat */
+}
+
+.history-item-menu-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+/* Hapus bagian .history-item:hover .history-item-menu-btn */
+
+.history-item-menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--card);
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.history-item-menu-content.show {
+    display: block;
+}
+
+.history-item-menu-item {
+    color: var(--text);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.history-item-menu-item:hover {
+    background-color: var(--background);
+}
+
+.history-item-menu-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.history-item-title-container {
+    position: relative;
+    padding-right: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.history-item-title {
+    font-weight: 500;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 30px);
+}
+
+.history-item-preview {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item-time {
+    font-size: 0.5rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+
+</style>
+</head>
+<body class="theme-dark">
+    <div class="header">
+        <div class="header-content">
+            <div class="profile-container">
+                <div class="profile-image">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name">Lexxcy Assistant</div>
+                    <div class="online-indicator">
+                        <div class="online-dot"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="history-btn" id="history-btn" title="Chat History">
+                    <i class="fas fa-history"></i>
+                </button>
+
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+        </div>
+        <div class="credit">Deni</div>
+    </div>
+
+    <!-- Mode Selection Modal -->
+    <div class="modal-overlay" id="mode-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Select Chat Mode</div>
+                <button class="close-modal" id="close-mode-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mode-options">
+                    <button class="mode-option" data-mode="formal">
+                        <i class="fas fa-suitcase"></i>
+                        <span>Formal</span>
+                        <p>Professional and business-appropriate responses</p>
+                    </button>
+                    <button class="mode-option" data-mode="informal">
+                        <i class="fas fa-comments"></i>
+                        <span>Informal</span>
+                        <p>Casual but polite everyday conversation</p>
+                    </button>
+                    <button class="mode-option" data-mode="casual">
+                        <i class="fas fa-smile"></i>
+                        <span>Casual</span>
+                        <p>Relaxed and friendly tone</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chat-container">
+        <div class="welcome-message">
+            <h2>Welcome to Lexxcy AI Assistant!</h2>
+            <p>I'm here to help you with questions, tasks, and creative endeavors. Feel free to ask anything!</p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <div class="input-actions">
+                <button class="action-button" id="upload-file" title="Upload File">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <button class="action-button" id="camera-button" title="Camera">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <button class="action-button" id="mode-button" title="Chat Mode">
+                    <i class="fas fa-comment-dots"></i>
+                </button><!-- Ganti bagian tombol bahasa dengan ini --><!-- Ganti tombol bahasa dengan versi yang lebih responsif --><button class="action-button language-button-container" id="language-button" title="Response Language">
+  <i class="fas fa-language"></i>
+  <span class="language-label">Language</span>
+  <span class="language-indicator">🌐</span>
+</button>
+
+
+
+
+<!-- Add this modal after the mode modal -->
+<div class="modal-overlay" id="language-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Select Response Language</div>
+            <button class="close-modal" id="close-language-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="mode-options">
+                <button class="mode-option" data-language="auto">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Auto</span>
+                    <p>Meyesuaikan Bahasa Prom</p>
+                </button>
+                <button class="mode-option" data-language="en">
+                    <i class="fas fa-globe-americas"></i>
+                    <span>English</span>
+                    <p>Default language for responses</p>
+                </button>
+                <button class="mode-option" data-language="id">
+                    <i class="fas fa-globe-asia"></i>
+                    <span>Bahasa Indonesia</span>
+                    <p>Respons dalam Bahasa Indonesia</p>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+                <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" />
+            </div>
+            <div class="upload-preview" id="upload-preview"></div>
+            <div class="message-input-container">
+                <textarea 
+                    id="prompt" 
+                    placeholder="Silahkan tayakkan ke Assistant Lexxcy..." 
+                    rows="1"
+                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); generateContent(); }"
+                ></textarea>
+                <button class="send-btn" onclick="generateContent()" id="submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+<!-- Add this right after the toast element -->
+<div class="loading-indicator" id="loading-indicator">
+    <div class="loading-spinner"></div>
+    <span id="loading-text">Processing...</span>
+</div>
+    <!-- History Sidebar -->
+    <div class="history-sidebar" id="history-sidebar">
+        <div class="history-header">
+            <div class="history-title">Chat History</div>
+            <button class="close-history" id="close-history">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="history-list" id="history-list">
+            <!-- History items will be added here -->
+        </div>
+        <div class="history-actions">
+            <button class="clear-history" id="clear-history">Clear All History</button>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal-overlay" id="camera-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Take a Photo</div>
+                <button class="close-modal" id="close-camera-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container">
+                    <video id="camera-preview" autoplay playsinline></video>
+                    <div class="camera-indicator">
+                        <i class="fas fa-camera"></i>
+                        <span id="active-camera-indicator">Front Camera</span>
+                    </div>
+                </div>
+                <div class="camera-actions">
+                    <button class="switch-camera" id="switch-camera">
+                        <i class="fas fa-sync"></i>
+                        <span>Switch Camera</span>
+                    </button>
+                    <button class="capture-btn" id="capture-photo">
+                        <i class="fas fa-camera"></i>
+                        <span>Take Photo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const CONFIG = {
+  GEMINI_API_KEY: "AIzaSyBeCuV1Xi2MGYBA_waHBB5RLj_utna_Mio",
+  GEMINI_API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+  MAX_HISTORY_ITEMS: 20,
+  MAX_FILE_SIZE: 5 * 1024 * 1024, 
+  SUPPORTED_FILE_TYPES: [
+    'image/jpeg', 'image/png', 'image/gif',
+    'application/pdf', 'text/plain',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ],
+  TYPING_INDICATOR_DELAY: 300, 
+  MAX_MESSAGE_LENGTH: 2000, 
+  MAX_FILES_PER_MESSAGE: 5,
+  SUPPORTED_LANGUAGES: ['auto','en', 'id'] // Ditambahkan tanda koma sebelumnya dan diperbaiki penulisannya
+};
+
+
+const CHAT_MODES = {
+  formal: {
+    name: "Formal",
+    icon: "fa-suitcase",
+    instruction: "Respond in a professional, business-appropriate tone. Use complete sentences and proper grammar. Avoid contractions and slang."
+  },
+  informal: {
+    name: "Informal",
+    icon: "fa-comments",
+    instruction: "Respond in a casual but polite tone as if talking to a friend. You can use contractions and simple language."
+  },
+  casual: {
+    name: "Casual",
+    icon: "fa-smile",
+    instruction: "Respond in a very relaxed, friendly tone. Use colloquial language, emojis when appropriate, and keep responses conversational."
+  }
+};
+
+
+
+const state = {
+  isGenerating: false,
+  activeFiles: [],
+  chatHistory: [],
+  currentChatId: '',
+  cameraStream: null,
+  facingMode: "user",
+  currentTheme: 'dark',
+  typingIndicatorTimeout: null,
+  abortController: null,
+  currentMode: 'informal', 
+  editMessageId: null, 
+  currentLanguage: 'en',
+  messageActions: {} 
+};
+
+
+const elements = {
+  chatContainer: document.getElementById('chat-container'),
+  promptInput: document.getElementById('prompt'),
+  submitBtn: document.getElementById('submit-btn'),
+  themeToggle: document.getElementById('theme-toggle'),
+  fileInput: document.getElementById('file-input'),
+  uploadBtn: document.getElementById('upload-file'),
+  uploadPreview: document.getElementById('upload-preview'),
+  historySidebar: document.getElementById('history-sidebar'),
+  historyBtn: document.getElementById('history-btn'),
+  closeHistory: document.getElementById('close-history'),
+  historyList: document.getElementById('history-list'),
+  clearHistory: document.getElementById('clear-history'),
+  newChatBtn: document.getElementById('new-chat-btn'),
+  cameraBtn: document.getElementById('camera-button'),
+  cameraModal: document.getElementById('camera-modal'),
+  closeCameraModal: document.getElementById('close-camera-modal'),
+  cameraPreview: document.getElementById('camera-preview'),
+  capturePhoto: document.getElementById('capture-photo'),
+  switchCamera: document.getElementById('switch-camera'),
+  toast: document.getElementById('toast'),
+  modeButton: document.getElementById('mode-button'),
+  messageInputContainer: document.querySelector('.message-input-container'),
+  modeModal: document.getElementById('mode-modal'),
+  closeModeModal: document.getElementById('close-mode-modal'),
+    // ... existing elements ...
+  languageBtn: document.getElementById('language-button'),
+  languageModal: document.getElementById('language-modal'),
+  closeLanguageModal: document.getElementById('close-language-modal')
+};
+
+const LANGUAGE_INSTRUCTIONS = {
+  auto: "jawablah dalam bahasa yang di gunakan soal",
+  en: "Respond in English",
+  id: "Jawablah dalam Bahasa Indonesia dan jangan tambakan embel embel baik saya mengunkan Bahasa indonesia"
+};
+
+// Add language names for display
+const LANGUAGE_NAMES = {
+  auto: "auto",
+  en: "English",
+  id: "Bahasa Indonesia"
+};
+
+// Add language flags (using emoji for simplicity)
+const LANGUAGE_FLAGS = {
+  auto: "",
+  en: "🇬🇧",
+  id: "🇮🇩"
+};
+
+function initializeApp() {
+  loadStateFromStorage();
+  loadLanguageFromStorage(); // Pastikan ini dipanggil
+  setupEventListeners();
+  initializeUI();
+  
+  // Perbarui tombol bahasa saat inisialisasi
+  updateLanguageButton();
+  
+  if (state.currentChatId && state.chatHistory.some(chat => chat.id === state.currentChatId)) {
+    loadChat(state.currentChatId);
+  } else {
+    showWelcomeMessage();
+  }
+}
+
+function loadStateFromStorage() {
+  try {
+    const savedHistory = localStorage.getItem('gemini_chat_history');
+    state.chatHistory = savedHistory ? JSON.parse(savedHistory) : [];
+    state.currentChatId = localStorage.getItem('current_chat_id') || generateChatId();
+    state.currentTheme = localStorage.getItem('theme') || ({ match: window.matchMedia('(prefers-color-scheme: dark)').matches, theme: 'dark' }).theme;
+    state.currentMode = localStorage.getItem('chat_mode') || 'informal';
+  } catch (e) {
+    console.error("Error loading from localStorage:", e);
+    state.chatHistory = [];
+    state.currentChatId = generateChatId();
+    state.currentTheme = 'dark';
+    state.currentMode = 'informal';
+  }
+}
+
+function setupEventListeners() {
+  // 1. Event listeners untuk input textarea
+  elements.promptInput.addEventListener('input', handleInput);
+  
+  // 2. Handle keyboard behavior (mobile vs desktop)
+  elements.promptInput.addEventListener('keydown', function(e) {
+    // Di mobile: Enter hanya untuk baris baru
+    if (isMobileDevice() && e.key === 'Enter' && !e.shiftKey) {
+      // Biarkan default behavior (tambahkan baris baru)
+      return;
+    }
+    
+    // Di desktop: Enter untuk kirim, Shift+Enter untuk baris baru
+    if (!isMobileDevice() && e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      generateContent();
+    }
+  });
+
+  // 3. Tombol Send - selalu mengirim pesan
+  elements.submitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    generateContent();
+  });
+
+  // 4. Toggle tema
+  elements.themeToggle.addEventListener('click', toggleTheme);
+
+  // 5. Upload file
+  elements.uploadBtn.addEventListener('click', () => elements.fileInput.click());
+  elements.fileInput.addEventListener('change', handleFileSelect);
+  
+  // 6. Remove file preview
+  elements.uploadPreview.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-file')) {
+      const fileName = e.target.closest('.remove-file').dataset.filename;
+      removeFile(fileName);
+    }
+  });
+
+  // 7. History chat
+  elements.historyBtn.addEventListener('click', toggleHistorySidebar);
+  elements.closeHistory.addEventListener('click', () => elements.historySidebar.classList.remove('open'));
+  elements.clearHistory.addEventListener('click', clearAllHistory);
+  elements.newChatBtn.addEventListener('click', createNewChat);
+
+  // 8. Kamera
+  elements.cameraBtn.addEventListener('click', startCamera);
+  elements.closeCameraModal.addEventListener('click', closeCamera);
+  elements.capturePhoto.addEventListener('click', captureImage);
+  elements.switchCamera.addEventListener('click', switchCamera);
+  elements.cameraModal.addEventListener('click', handleModalOutsideClick);
+
+  // 9. Mode chat
+  elements.modeButton.addEventListener('click', () => elements.modeModal.classList.add('open'));
+  elements.closeModeModal.addEventListener('click', () => elements.modeModal.classList.remove('open'));
+  elements.modeModal.addEventListener('click', handleModeModalOutsideClick);
+  
+  // 10. Bahasa
+  elements.languageBtn.addEventListener('click', () => elements.languageModal.classList.add('open'));
+  elements.closeLanguageModal.addEventListener('click', () => elements.languageModal.classList.remove('open'));
+  elements.languageModal.addEventListener('click', handleLanguageModalOutsideClick);
+  
+  // 11. Pilihan bahasa
+  document.querySelectorAll('.mode-option[data-language]').forEach(option => {
+    option.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const language = option.dataset.language;
+      if (CONFIG.SUPPORTED_LANGUAGES.includes(language)) {
+        setLanguage(language);
+        elements.languageModal.classList.remove('open');
+      }
+    });
+  });
+
+  // 12. Pilihan mode chat
+  document.querySelectorAll('.mode-option[data-mode]').forEach(option => {
+    option.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const mode = option.dataset.mode;
+      setChatMode(mode);
+      elements.modeModal.classList.remove('open');
+    });
+  });
+
+  // 13. Resize window
+  window.addEventListener('resize', () => autoResizeTextarea(elements.promptInput));
+
+  // 14. MathJax rendering
+  if (typeof MathJax !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => MathJax.typesetPromise());
+  }
+}
+
+// Fungsi deteksi mobile yang lebih akurat
+function isMobileDevice() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return isMobile || isTouch;
+}
+
+  elements.uploadPreview.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-file')) {
+      const fileName = e.target.closest('.remove-file').dataset.filename;
+      removeFile(fileName);
+    }
+  });
+  
+
+  window.addEventListener('resize', () => autoResizeTextarea(elements.promptInput));
+
+
+function initializeUI() {
+
+  document.body.className = `theme-${state.currentTheme}`;
+  elements.themeToggle.innerHTML = state.currentTheme === 'dark' ? 
+    '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+  
+
+  updateModeButton();
+  
+  
+  renderHistoryList();
+  
+  
+  autoResizeTextarea(elements.promptInput);
+}
+
+
+function setChatMode(mode) {
+  if (!CHAT_MODES[mode]) return;
+  
+  state.currentMode = mode;
+  localStorage.setItem('chat_mode', mode);
+  updateModeButton();
+  showToast(`Chat mode set to ${CHAT_MODES[mode].name}`);
+}
+
+function updateModeButton() {
+  const mode = CHAT_MODES[state.currentMode];
+  elements.modeButton.innerHTML = `<i class="fas ${mode.icon}"></i>`;
+  elements.modeButton.title = `Current mode: ${mode.name}`;
+}
+
+function getModeInstruction() {
+  return CHAT_MODES[state.currentMode].instruction;
+}
+
+function handleModeModalOutsideClick(e) {
+  if (e.target === elements.modeModal) {
+    elements.modeModal.classList.remove('open');
+  }
+}
+
+
+async function generateContent() {
+  if (state.isGenerating) {
+    showToast("Please wait for the current request to complete");
+    return;
+  }
+
+  const prompt = elements.promptInput.value.trim();
+  if (!prompt && state.activeFiles.length === 0) {
+    showToast("Please enter a message or attach files");
+    return;
+  }
+
+  try {
+
+    if (state.abortController) {
+      state.abortController.abort();
+    }
+    state.abortController = new AbortController();
+
+
+    const isEditing = !!state.editMessageId;
+    const oldMessageId = state.editMessageId;
+    if (isEditing) {
+      deleteMessage(oldMessageId);
+      cancelEdit(); 
+    }
+
+
+    const messageId = generateMessageId();
+    appendMessage(prompt || "(Sending files/images)", true, state.activeFiles, messageId);
+    resetInput();
+    state.isGenerating = true;
+    disableInput();
+    
+
+    state.typingIndicatorTimeout = setTimeout(() => {
+      showTypingIndicator();
+    }, CONFIG.TYPING_INDICATOR_DELAY);
+
+
+    const processedParts = await processInputParts(prompt);
+    
+
+    const conversation = buildConversationHistory(processedParts);
+    
+
+    const responseText = await callGeminiAPI(conversation);
+    
+
+    const responseId = generateMessageId();
+    appendMessage(responseText, false, [], responseId);
+    
+    // Update chat history
+    updateChatInHistory(prompt || "(Sent files/images)", true, state.activeFiles, messageId);
+    updateChatInHistory(responseText, false, [], responseId);
+
+    // Show success message if editing
+    if (isEditing) {
+      showToast("Message updated successfully");
+    }
+
+  } catch (error) {
+    handleGenerationError(error);
+    
+    // If editing failed, restore the original message
+    if (state.editMessageId) {
+      const messageData = state.messageActions[oldMessageId];
+      if (messageData) {
+        appendMessage(messageData.content, true, messageData.files, oldMessageId);
+        updateChatInHistory(messageData.content, true, messageData.files, oldMessageId);
+      }
+    }
+  } finally {
+    cleanupAfterGeneration();
+    
+
+    if (state.editMessageId) {
+      cancelEdit();
+    }
+  }
+}
+
+function handleGenerationError(error) {
+  console.error("Error:", error);
+  
+  if (error.name === 'AbortError') {
+    appendMessage("Request canceled", false);
+    showToast("Request canceled");
+  } else {
+    const errorMessage = error.message || "An error occurred";
+    appendMessage(`Error: ${errorMessage}`, false);
+    showToast(`Error: ${errorMessage}`);
+  }
+}
+
+function cleanupAfterGeneration() {
+  // Clear all loading indicators
+  clearTimeout(state.typingIndicatorTimeout);
+  removeTypingIndicator();
+  document.getElementById('loading-indicator').classList.remove('show');
+  
+  // Reset state
+  state.isGenerating = false;
+  state.abortController = null;
+  
+  // Enable UI components
+  elements.submitBtn.disabled = false;
+  elements.promptInput.disabled = false;
+  
+  // Clear files if not in edit mode
+  if (!state.editMessageId) {
+    state.activeFiles = [];
+    elements.uploadPreview.innerHTML = '';
+  }
+  
+  // Reset input field
+  elements.promptInput.value = '';
+  autoResizeTextarea(elements.promptInput);
+  
+  // Set focus back to input
+  elements.promptInput.focus();
+  
+  // Re-attach event listeners if needed
+  setupInputEventListeners();
+}
+function setupInputEventListeners() {
+  // Pastikan event listener hanya terpasang sekali
+  elements.promptInput.removeEventListener('input', handleInput);
+  elements.promptInput.removeEventListener('keydown', handleKeyDown);
+  
+  // Pasang kembali event listeners
+  elements.promptInput.addEventListener('input', handleInput);
+  elements.promptInput.addEventListener('keydown', handleKeyDown);
+  
+  // Pastikan tombol submit berfungsi
+  elements.submitBtn.removeEventListener('click', generateContent);
+  elements.submitBtn.addEventListener('click', generateContent);
+}
+async function processInputParts(prompt) {
+  const parts = [];
+  
+  // Always include language instruction first
+  parts.push({ text: LANGUAGE_INSTRUCTIONS[state.currentLanguage] });
+  
+  // Then include mode instruction
+  parts.push({ text: getModeInstruction() });
+  
+  // Add text prompt if exists
+  if (prompt) {
+    if (prompt.length > CONFIG.MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message too long (max ${CONFIG.MAX_MESSAGE_LENGTH} characters)`);
+    }
+    parts.push({ text: prompt });
+  }
+  
+  // Process files if any
+  if (state.activeFiles.length > 0) {
+    if (state.activeFiles.length > CONFIG.MAX_FILES_PER_MESSAGE) {
+      throw new Error(`Too many files (max ${CONFIG.MAX_FILES_PER_MESSAGE})`);
+    }
+
+    for (const file of state.activeFiles) {
+      try {
+        const processed = await processFileForAPI(file);
+        if (processed) parts.push(processed);
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+        parts.push({ text: `[Error processing file "${file.name}": ${error.message}]` });
+      }
+    }
+  }
+  
+  return parts;
+}
+
+
+async function processFileForAPI(file) {
+  // Process different file types
+  if (file.type.startsWith('image/')) {
+    // Handle image file
+    const base64Data = await fileToBase64(file);
+    // Store image data URL for history purposes
+    file.dataUrl = `data:${file.type};base64,${base64Data}`;
+    return {
+      inlineData: {
+        mimeType: file.type,
+        data: base64Data
+      }
+    };
+  } else if (file.type === 'application/pdf' || file.type === 'text/plain' || 
+             file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    // Handle text-based documents
+    try {
+      const textContent = await extractTextFromFile(file);
+      return {
+        text: `[File: ${file.name}]\n${textContent}`
+      };
+    } catch (error) {
+      throw new Error(`Failed to extract text from ${file.name}: ${error.message}`);
+    }
+  } else {
+    // Unsupported file type
+    throw new Error(`Unsupported file type: ${file.type}`);
+  }
+}
+
+function buildConversationHistory(parts) {
+  const conversation = [];
+  const currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+
+  // Add language instruction first
+  conversation.push({
+    role: "user",
+    parts: [{ text: LANGUAGE_INSTRUCTIONS[state.currentLanguage] }]
+  });
+
+  // Add mode instruction
+  conversation.push({
+    role: "user",
+    parts: [{ text: getModeInstruction() }]
+  });
+
+  if (currentChat?.messages?.length > 0) {
+    currentChat.messages.slice(-4).forEach(msg => {
+      conversation.push({
+        role: msg.isUser ? "user" : "model",
+        parts: [{ text: msg.content }]
+      });
+    });
+  }
+
+  // Add current message parts
+  conversation.push({
+    role: "user",
+    parts: parts
+  });
+
+  return conversation;
+}
+
+async function callGeminiAPI(contents) {
+  const loadingIndicator = document.getElementById('loading-indicator');
+  try {
+    loadingIndicator.classList.add('show');
+    
+    const response = await fetch(`${CONFIG.GEMINI_API_URL}?key=${CONFIG.GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents }),
+      signal: state.abortController?.signal
+    });
+
+    if (!response.ok) throw new Error("API request failed");
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  } finally {
+    // Pastikan selalu dijalankan
+    loadingIndicator.classList.remove('show');
+    enableInput(); // Pastikan input di-enable kembali
+  }
+}
+
+function handleGenerationError(error) {
+  console.error("Error:", error);
+  
+  if (error.name === 'AbortError') {
+    appendMessage("Request canceled", false);
+  } else {
+    appendMessage(`Error: ${error.message}`, false);
+  }
+}
+
+function appendMessage(content, isUser = false, files = [], messageId = null) {
+  messageId = messageId || generateMessageId();
+  const messageGroup = document.createElement('div');
+  messageGroup.className = 'message-group';
+  messageGroup.dataset.messageId = messageId;
+  
+  const messageContainer = document.createElement('div');
+  messageContainer.className = isUser ? 'user-message-container' : 'assistant-message-container';
+  
+  const message = document.createElement('div');
+  message.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+  
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
+  
+  // Handle files if present
+  if (files && files.length > 0) {
+    const filesContainer = document.createElement('div');
+    filesContainer.className = 'message-files';
+    
+    files.forEach(file => {
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'message-file';
+      
+      // Check if file is already a data URL string
+      const isDataUrl = typeof file === 'string' && file.startsWith('data:image/');
+      
+      if ((file.type?.startsWith('image/') || isDataUrl) || 
+         (file.name && /\.(jpg|jpeg|png|gif)$/i.test(file.name))) {
+        const img = document.createElement('img');
+        
+        if (isDataUrl) {
+          // Use the data URL directly
+          img.src = file;
+        } else if (file.dataUrl) {
+          // Use stored data URL if available
+          img.src = file.dataUrl;
+        } else {
+          // Create object URL for File objects
+          img.src = URL.createObjectURL(file);
+        }
+        
+        img.alt = isDataUrl ? 'Image' : file.name;
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '0.5rem';
+        img.loading = 'lazy';
+        
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-image-button';
+        copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy to Clipboard';
+        copyButton.onclick = () => copyImageToClipboard(file);
+        
+        fileDiv.appendChild(img);
+        fileDiv.appendChild(copyButton);
+      } else if (file.name) { // Show file icon for non-image files
+        const iconClass = getFileIconClass(file.name);
+        fileDiv.innerHTML = `
+          <div class="file-icon"><i class="fas ${iconClass}"></i></div>
+          <div class="file-info">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+        `;
+      }
+      
+      filesContainer.appendChild(fileDiv);
+    });
+    
+    messageContent.appendChild(filesContainer);
+    
+    if (content) {
+      const textDiv = document.createElement('div');
+      textDiv.className = 'message-text';
+      textDiv.textContent = content;
+      messageContent.appendChild(textDiv);
+    }
+  } else if (isUser) {
+    messageContent.textContent = content;
+  } else {
+    messageContent.innerHTML = marked.parse(content);
+    
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-button';
+      copyButton.innerHTML = '<i class="fas fa-copy"></i> <span>Copy</span>';
+      copyButton.onclick = () => {
+        navigator.clipboard.writeText(block.textContent);
+        showToast('Code copied to clipboard!');
+      };
+      
+      block.parentNode.insertBefore(copyButton, block);
+    });
+  }
+  
+  // Add message metadata and actions
+  const messageMeta = document.createElement('div');
+  messageMeta.className = 'message-meta';
+  
+  const messageActions = document.createElement('div');
+  messageActions.className = 'message-actions';
+  
+  // Add action buttons
+  if (isUser) {
+    // User message actions
+    const editButton = createActionButton('fa-edit', 'Edit', () => editMessage(messageId));
+    const deleteButton = createActionButton('fa-trash', 'Delete', () => deleteMessage(messageId));
+    messageActions.append(editButton, deleteButton);
+  } else {
+    // Assistant message actions
+    const copyButton = createActionButton('fa-copy', 'Copy', () => copyMessage(messageId));
+    const shortenButton = createActionButton('fa-compress', 'Shorten', () => adjustMessageLength(messageId, 'shorten'));
+    const expandButton = createActionButton('fa-expand', 'Expand', () => adjustMessageLength(messageId, 'expand'));
+    const deleteButton = createActionButton('fa-trash', 'Delete', () => deleteMessage(messageId));
+    messageActions.append(copyButton, shortenButton, expandButton, deleteButton);
+  }
+  
+  messageMeta.innerHTML = `
+    <span class="message-time">${getCurrentTime()}</span>
+  `;
+  
+  messageMeta.appendChild(messageActions);
+  message.appendChild(messageContent);
+  message.appendChild(messageMeta);
+  messageContainer.appendChild(message);
+  messageGroup.appendChild(messageContainer);
+  elements.chatContainer.appendChild(messageGroup);
+  
+  // Store message content for later actions
+  state.messageActions[messageId] = {
+    content,
+    isUser,
+    files
+  };
+  
+  scrollToBottom();
+  return messageId;
+}
+
+function createActionButton(icon, text, onClick) {
+  const button = document.createElement('button');
+  button.className = 'message-action';
+  button.innerHTML = `<i class="fas ${icon}"></i> <span>${text}</span>`;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+// Replace the existing editMessage function with this:
+function editMessage(messageId) {
+  const messageData = state.messageActions[messageId];
+  if (!messageData || !messageData.isUser) return;
+
+  // Cancel any existing edit
+  if (state.editMessageId) {
+    cancelEdit();
+  }
+
+  // Set the message ID being edited
+  state.editMessageId = messageId;
+
+  // Find the message element
+  const messageElement = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+  if (!messageElement) return;
+
+  // Mark as editing
+  messageElement.classList.add('editing');
+
+  // Get the message content element
+  const contentElement = messageElement.querySelector('.message-content');
+  if (!contentElement) return;
+
+  // Store original content
+  const originalContent = messageData.content;
+  const originalFiles = messageData.files || [];
+
+  // Create edit container
+  const editContainer = document.createElement('div');
+  editContainer.className = 'message-edit-container';
+
+  // Create textarea
+  const textarea = document.createElement('textarea');
+  textarea.className = 'message-edit-textarea';
+  textarea.value = originalContent;
+  textarea.rows = Math.min(Math.max(originalContent.split('\n').length, 3), 10);
+
+  // Create files preview container
+  const filesPreview = document.createElement('div');
+  filesPreview.className = 'message-files-preview';
+
+  // Add existing files to preview
+  originalFiles.forEach(file => {
+    const filePreview = document.createElement('div');
+    filePreview.className = 'message-file-preview';
+    
+    if (file.type?.startsWith('image/') || file.dataUrl || (typeof file === 'string' && file.startsWith('data:image/'))) {
+      const img = document.createElement('img');
+      img.src = typeof file === 'string' ? file : (file.dataUrl || URL.createObjectURL(file));
+      img.alt = 'Image preview';
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '150px';
+      img.style.borderRadius = '0.5rem';
+      filePreview.appendChild(img);
+    } else {
+      const iconClass = getFileIconClass(file.name || 'file');
+      filePreview.innerHTML = `<i class="fas ${iconClass}"></i> ${file.name || 'File'}`;
+    }
+    
+    filesPreview.appendChild(filePreview);
+  });
+
+  // Create buttons container
+  const buttonsContainer = document.createElement('div');
+  buttonsContainer.className = 'message-edit-buttons';
+
+  // Create save button
+  const saveButton = document.createElement('button');
+  saveButton.className = 'message-edit-save';
+  saveButton.textContent = 'Save Changes';
+  saveButton.onclick = () => saveEditedMessage(messageId, textarea.value, originalFiles);
+
+  // Create cancel button
+  const cancelButton = document.createElement('button');
+  cancelButton.className = 'message-edit-cancel';
+  cancelButton.textContent = 'Cancel';
+  cancelButton.onclick = () => {
+    cancelEdit();
+    if (contentElement.textContent !== originalContent) {
+      contentElement.textContent = originalContent;
+    }
+  };
+
+  // Append elements
+  editContainer.appendChild(filesPreview);
+  editContainer.appendChild(textarea);
+  editContainer.appendChild(buttonsContainer);
+  buttonsContainer.appendChild(cancelButton);
+  buttonsContainer.appendChild(saveButton);
+
+  // Replace content with edit interface
+  contentElement.innerHTML = '';
+  contentElement.appendChild(editContainer);
+
+  // Focus on textarea
+  setTimeout(() => {
+    textarea.focus();
+    textarea.selectionStart = textarea.value.length;
+  }, 100);
+
+  // Scroll to the message
+  messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Update UI to show edit mode
+  document.querySelector('.input-container').classList.add('editing');
+}
+
+// Add this new function for saving edited messages
+async function saveEditedMessage(messageId, newContent, files = []) {
+  if (!messageId || (!newContent.trim() && files.length === 0)) {
+    showToast("Please enter a message or attach files");
+    return;
+  }
+
+  try {
+    // Update message content in state
+    const messageData = state.messageActions[messageId];
+    if (!messageData) return;
+
+    messageData.content = newContent;
+    messageData.files = files;
+    messageData.modificationType = 'edited';
+    
+    // Update in chat history
+    const currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+    if (currentChat) {
+      const message = currentChat.messages.find(msg => msg.id === messageId);
+      if (message) {
+        message.content = newContent;
+        
+        // Process files for storage
+        const processedFiles = [];
+        for (const file of files) {
+          let fileData = { name: file.name, type: file.type, size: file.size };
+          
+          if (file.type?.startsWith('image/') || typeof file === 'string' && file.startsWith('data:image/')) {
+            if (typeof file === 'string') {
+              fileData.dataUrl = file;
+            } else if (file.dataUrl) {
+              fileData.dataUrl = file.dataUrl;
+            } else {
+              fileData.dataUrl = await fileToDataURL(file);
+            }
+          }
+          
+          processedFiles.push(fileData);
+        }
+        
+        message.files = processedFiles;
+        message.modificationType = 'edited';
+        saveHistoryToStorage();
+      }
+    }
+
+    // Remove the editing UI
+    const messageElement = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+    if (messageElement) {
+      messageElement.classList.remove('editing');
+      
+      // Re-render the message with updated content
+      const container = messageElement.querySelector('.user-message-container');
+      if (container) {
+        container.innerHTML = '';
+        const messageDiv = createMessageElement(newContent, true, files, messageId);
+        container.appendChild(messageDiv);
+      }
+      
+      // Add edited indicator
+      const existingIndicator = messageElement.querySelector('.edit-indicator');
+      if (existingIndicator) existingIndicator.remove();
+      
+      const indicator = createEditIndicator('edited');
+      messageElement.appendChild(indicator);
+    }
+
+    // Clear edit state
+    state.editMessageId = null;
+    document.querySelector('.input-container').classList.remove('editing');
+    
+    // Send to AI for response
+    await sendEditedMessageToAI(messageId, newContent, files);
+    
+  } catch (error) {
+    console.error("Error saving edited message:", error);
+    showToast("Failed to save changes");
+    
+    // Ensure loading indicators are removed
+    document.getElementById('loading-indicator').classList.remove('show');
+    removeTypingIndicator();
+    
+    // Restore original message if error occurs
+    const messageData = state.messageActions[messageId];
+    if (messageData) {
+      const messageElement = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+      if (messageElement) {
+        messageElement.classList.remove('editing');
+        const container = messageElement.querySelector('.user-message-container');
+        if (container) {
+          container.innerHTML = '';
+          const originalMessage = createMessageElement(
+            messageData.originalContent || messageData.content,
+            true,
+            messageData.files,
+            messageId
+          );
+          container.appendChild(originalMessage);
+        }
+      }
+    }
+  } finally {
+    // Always clean up state and UI
+    state.isGenerating = false;
+    state.editMessageId = null;
+    document.querySelector('.input-container').classList.remove('editing');
+    document.getElementById('loading-indicator').classList.remove('show');
+    elements.promptInput.disabled = false;
+    elements.promptInput.focus();
+  }
+}
+
+// Add this function to handle sending edited message to AI
+async function sendEditedMessageToAI(messageId, content, files = []) {
+  if (state.isGenerating) {
+    showToast("Please wait for the current request to complete");
+    return;
+  }
+
+  // Show loading indicators
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const loadingText = document.getElementById('loading-text');
+  loadingText.textContent = "Processing edited message...";
+  loadingIndicator.classList.add('show');
+  
+  let typingIndicator = null;
+  
+  try {
+    state.isGenerating = true;
+    disableInput();
+
+    // Show typing indicator after delay
+    typingIndicator = setTimeout(() => {
+      showTypingIndicator();
+    }, CONFIG.TYPING_INDICATOR_DELAY);
+
+    // Build conversation history
+    const conversation = [];
+    const currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+    
+    // Add language and mode instructions
+    conversation.push({ 
+      role: "user",
+      parts: [{ text: LANGUAGE_INSTRUCTIONS[state.currentLanguage] }]
+    });
+    
+    conversation.push({
+      role: "user",
+      parts: [{ text: getModeInstruction() }]
+    });
+    
+    // Add previous messages in context
+    if (currentChat?.messages) {
+      const messagesBeforeEdit = currentChat.messages.filter(msg => {
+        return msg.id !== messageId && msg.timestamp < (state.messageActions[messageId]?.timestamp || Date.now());
+      });
+      
+      for (const msg of messagesBeforeEdit) {
+        const parts = [{ text: msg.content }];
+        
+        if (msg.files?.length > 0) {
+          for (const file of msg.files) {
+            try {
+              let fileToProcess = file;
+              if (file.dataUrl) {
+                const response = await fetch(file.dataUrl);
+                const blob = await response.blob();
+                fileToProcess = new File([blob], file.name || `image_${Date.now()}.jpg`, { 
+                  type: file.type || 'image/jpeg' 
+                });
+              }
+              
+              const processed = await processFileForAPI(fileToProcess);
+              if (processed) parts.push(processed);
+            } catch (error) {
+              console.error("Error processing historical file:", error);
+              parts.push({ text: `[File: ${file.name}]` });
+            }
+          }
+        }
+        
+        conversation.push({
+          role: msg.isUser ? "user" : "model",
+          parts: parts
+        });
+      }
+    }
+
+    // Process current message parts
+    const messageParts = [];
+    
+    if (content && content.trim()) {
+      messageParts.push({ text: content });
+    }
+    
+    if (files.length > 0) {
+      for (const file of files) {
+        try {
+          let fileToProcess = file;
+          
+          if (typeof file === 'string' && file.startsWith('data:')) {
+            const response = await fetch(file);
+            const blob = await response.blob();
+            fileToProcess = new File([blob], `image_${Date.now()}.jpg`, { type: blob.type });
+          }
+          else if (file.dataUrl) {
+            const response = await fetch(file.dataUrl);
+            const blob = await response.blob();
+            fileToProcess = new File([blob], file.name || `image_${Date.now()}.jpg`, { 
+              type: file.type || 'image/jpeg' 
+            });
+          }
+          
+          const processed = await processFileForAPI(fileToProcess);
+          if (processed) messageParts.push(processed);
+        } catch (error) {
+          console.error("Error processing file:", error);
+          messageParts.push({ text: `[File: ${file.name || 'image'}]` });
+        }
+      }
+    }
+    
+    if (messageParts.length > 0) {
+      conversation.push({
+        role: "user",
+        parts: messageParts
+      });
+    } else {
+      throw new Error("No content or valid files to send");
+    }
+
+    // Call Gemini API
+    const responseText = await callGeminiAPI(conversation);
+    
+    // Create response message
+    const responseId = generateMessageId();
+    appendMessage(responseText, false, [], responseId);
+    
+    // Add to chat history
+    updateChatInHistory(responseText, false, [], responseId);
+    
+    // Add edited indicator
+    const responseElement = document.querySelector(`.message-group[data-message-id="${responseId}"]`);
+    if (responseElement) {
+      const indicator = createEditIndicator('edited');
+      responseElement.appendChild(indicator);
+    }
+    
+    showToast("AI response updated successfully");
+
+  } catch (error) {
+    console.error("Error in sendEditedMessageToAI:", error);
+    showToast(`Error: ${error.message || "Failed to get AI response"}`);
+    
+    appendMessage(`Error: ${error.message || "Failed to update response"}`, false);
+
+  } finally {
+    // Clean up all indicators and states
+    if (typingIndicator) clearTimeout(typingIndicator);
+    removeTypingIndicator();
+    document.getElementById('loading-indicator').classList.remove('show');
+    
+    state.isGenerating = false;
+    state.editMessageId = null;
+    elements.promptInput.disabled = false;
+    elements.promptInput.focus();
+  }
+}
+
+// Update the cancelEdit function to handle inline editing
+
+
+function copyMessage(messageId) {
+  const messageData = state.messageActions[messageId];
+  if (!messageData) return;
+  
+  navigator.clipboard.writeText(messageData.content)
+    .then(() => showToast('Message copied to clipboard!'))
+    .catch(err => {
+      console.error('Failed to copy message:', err);
+      showToast('Failed to copy message');
+    });
+}
+
+async function adjustMessageLength(messageId, action) {
+    const messageData = state.messageActions[messageId];
+    if (!messageData || messageData.isUser) return;
+
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const loadingText = document.getElementById('loading-text');
+    loadingText.textContent = action === 'shorten' ? 'Shortening message...' : 'Expanding message...';
+    loadingIndicator.classList.add('show');
+
+    try {
+        const instruction = action === 'shorten' ? 
+            "Please summarize this response to be more concise while keeping the key information:" : 
+            "Please expand this response with more details and explanations:";
+        
+        const response = await callGeminiAPI([{
+            role: "user",
+            parts: [{ text: `${instruction}\n\n${messageData.content}` }]
+        }]);
+        
+        // Update the message content
+        const messageGroup = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+        if (messageGroup) {
+            const contentDiv = messageGroup.querySelector('.message-content');
+            if (contentDiv) {
+                contentDiv.innerHTML = marked.parse(response);
+                
+                // Update modification type
+                const modificationType = action === 'shorten' ? 'shortened' : 'expanded';
+                state.messageActions[messageId].modificationType = modificationType;
+                
+                // Remove existing indicator if any
+                const existingIndicator = messageGroup.querySelector('.edit-indicator');
+                if (existingIndicator) existingIndicator.remove();
+                
+                // Add new indicator
+                const indicator = createEditIndicator(modificationType);
+                messageGroup.appendChild(indicator);
+                
+                // Re-highlight code blocks
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        }
+        
+        // Update in state
+        state.messageActions[messageId].content = response;
+        
+        // Update in chat history
+        const currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+        if (currentChat) {
+            const message = currentChat.messages.find(msg => msg.id === messageId);
+            if (message) {
+                message.content = response;
+                message.modificationType = action === 'shorten' ? 'shortened' : 'expanded';
+                saveHistoryToStorage();
+            }
+        }
+        
+        showToast(`Message ${action === 'shorten' ? 'shortened' : 'expanded'} successfully`);
+    } catch (error) {
+        console.error(`Error ${action}ing message:`, error);
+        showToast(`Failed to ${action} message`);
+    } finally {
+        // Hide loading indicator
+        loadingIndicator.classList.remove('show');
+    }
+}
+
+function deleteMessage(messageId) {
+  // Remove from DOM
+  const messageElement = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+  if (messageElement) {
+    messageElement.remove();
+  }
+  
+  // Remove from state
+  delete state.messageActions[messageId];
+  
+  // Remove from chat history
+  const currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+  if (currentChat) {
+    currentChat.messages = currentChat.messages.filter(msg => msg.id !== messageId);
+    saveHistoryToStorage();
+  }
+  
+  showToast('Message deleted');
+}
+
+function generateMessageId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+// ================== CHAT HISTORY MANAGEMENT ==================
+function updateChatInHistory(content, isUser, files = [], messageId = null) {
+  let currentChat = state.chatHistory.find(chat => chat.id === state.currentChatId);
+  
+  if (!currentChat) {
+    // Create new chat with default title
+    let title = "New Chat";
+    
+    // Jika ini adalah pesan pertama dari user, gunakan sebagai judul
+    if (isUser && content.trim() !== "") {
+      // Ambil 40 karakter pertama dari pesan user
+      title = content.substring(0, 40);
+      if (content.length > 40) title += '...';
+      
+      // Bersihkan dari karakter khusus yang mungkin mengganggu
+      title = title.replace(/[\n\r\t]/g, ' ').trim();
+    }
+    
+    currentChat = {
+      id: state.currentChatId,
+      title: title,
+      messages: [],
+      timestamp: Date.now(),
+      mode: state.currentMode
+    };
+    state.chatHistory.unshift(currentChat);
+  } else {
+    // Pindahkan ke atas history
+    const index = state.chatHistory.findIndex(chat => chat.id === state.currentChatId);
+    if (index > 0) {
+      state.chatHistory.splice(index, 1);
+      state.chatHistory.unshift(currentChat);
+    }
+    currentChat.timestamp = Date.now();
+  }
+  
+  // ... (kode selanjutnya tetap sama)
+
+
+  
+  // Process files for storage - including image data
+  const fileMetadata = files.map(f => {
+    const metadata = { 
+      name: f.name, 
+      type: f.type, 
+      size: f.size 
+    };
+    
+    // If it's an image and has a dataUrl, store it
+    if (f.type.startsWith('image/') && f.dataUrl) {
+      metadata.dataUrl = f.dataUrl;
+    } else if (typeof f === 'string' && f.startsWith('data:image/')) {
+      // Handle cases where file is already a data URL string
+      metadata.dataUrl = f;
+      metadata.name = 'image_' + Date.now() + '.jpg';
+      metadata.type = 'image/jpeg';
+    }
+    
+    return metadata;
+  });
+  
+  // Add message to chat
+// Di fungsi updateChatInHistory(), ganti dengan:
+currentChat.messages.push({
+    id: messageId || generateMessageId(),
+    content,
+    isUser,
+    timestamp: Date.now(),
+    files: fileMetadata,
+    modificationType: state.messageActions[messageId]?.modificationType || null
+});
+
+// Tambahkan juga di awal fungsi untuk memastikan modificationType tidak hilang saat update
+if (messageId && state.messageActions[messageId]?.modificationType) {
+    const existingMessage = currentChat.messages.find(msg => msg.id === messageId);
+    if (existingMessage) {
+        existingMessage.modificationType = state.messageActions[messageId].modificationType;
+    }
+}
+  
+  // Trim history if too long
+  if (state.chatHistory.length > CONFIG.MAX_HISTORY_ITEMS) {
+    state.chatHistory = state.chatHistory.slice(0, CONFIG.MAX_HISTORY_ITEMS);
+  }
+  
+  saveHistoryToStorage();
+  renderHistoryList();
+}
+function loadLanguageFromStorage() {
+  state.currentLanguage = localStorage.getItem('chat_language') || 'en';
+}
+function setLanguage(language) {
+  if (!CONFIG.SUPPORTED_LANGUAGES.includes(language)) return;
+  
+  state.currentLanguage = language;
+  localStorage.setItem('chat_language', language);
+  updateLanguageButton();
+  showToast(`Response language set to ${LANGUAGE_NAMES[language]}`);
+}
+
+  function updateLanguageButton() {
+  const languageBtn = document.getElementById('language-button');
+  if (languageBtn) {
+    languageBtn.innerHTML = `
+      <i class="fas fa-language"></i>
+      <span class="language-label">${LANGUAGE_NAMES[state.currentLanguage] || 'Language'}</span>
+      <span class="language-indicator">${LANGUAGE_FLAGS[state.currentLanguage] || '🌐'}</span>
+    `;
+    languageBtn.title = `Current language: ${LANGUAGE_NAMES[state.currentLanguage] || 'English'}`;
+  }
+}
+
+function handleLanguageModalOutsideClick(e) {
+  if (e.target === elements.languageModal) {
+    elements.languageModal.classList.remove('open');
+  }
+}
+function loadChat(chatId) {
+    const selectedChat = state.chatHistory.find(chat => chat.id === chatId);
+    if (!selectedChat) return;
+
+    // Update state
+    state.currentChatId = chatId;
+    localStorage.setItem('current_chat_id', chatId);
+
+    // Clear current chat and message actions
+    elements.chatContainer.innerHTML = '';
+    state.messageActions = {};
+
+    // Re-render all messages
+    selectedChat.messages.forEach(msg => {
+        // Process files to convert metadata back to displayable format
+        const displayFiles = msg.files ? msg.files.map(file => {
+            // For image files with dataUrl, convert back to displayable format
+            if (file.type?.startsWith('image/') && file.dataUrl) {
+                return file.dataUrl;
+            }
+            return file;
+        }) : [];
+
+        const messageId = appendMessage(msg.content, msg.isUser, displayFiles, msg.id);
+        
+        // Ensure modification type is preserved
+        if (msg.modificationType) {
+            state.messageActions[messageId].modificationType = msg.modificationType;
+            
+            // Add indicator if not already added by appendMessage
+            const messageGroup = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+            if (messageGroup && !messageGroup.querySelector('.edit-indicator')) {
+                const indicator = createEditIndicator(msg.modificationType);
+                messageGroup.appendChild(indicator);
+            }
+        }
+    });
+
+    // Update active history item
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.chatId === chatId);
+    });
+
+    // Close sidebar (for mobile)
+    elements.historySidebar.classList.remove('open');
+
+    // Scroll to bottom
+    scrollToBottom();
+}
+function createMessageElement(content, isUser, files, messageId) {
+  const message = document.createElement('div');
+  message.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+  
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
+  
+  // Handle files
+  if (files && files.length > 0) {
+    const filesContainer = document.createElement('div');
+    filesContainer.className = 'message-files';
+    
+    files.forEach(file => {
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'message-file';
+      
+      if (file.type?.startsWith('image/') || file.dataUrl || (typeof file === 'string' && file.startsWith('data:image/'))) {
+        const img = document.createElement('img');
+        img.src = typeof file === 'string' ? file : (file.dataUrl || URL.createObjectURL(file));
+        img.alt = file.name || 'Image';
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '0.5rem';
+        
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-image-button';
+        copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy to Clipboard';
+        copyButton.onclick = () => copyImageToClipboard(file);
+        
+        fileDiv.appendChild(img);
+        fileDiv.appendChild(copyButton);
+      } else {
+        const iconClass = getFileIconClass(file.name);
+        fileDiv.innerHTML = `
+          <div class="file-icon"><i class="fas ${iconClass}"></i></div>
+          <div class="file-info">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+        `;
+      }
+      
+      filesContainer.appendChild(fileDiv);
+    });
+    
+    messageContent.appendChild(filesContainer);
+  }
+  
+  // Add text content
+  if (content) {
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    textDiv.textContent = content;
+    messageContent.appendChild(textDiv);
+  }
+  
+  // Add metadata and actions
+  const messageMeta = document.createElement('div');
+  messageMeta.className = 'message-meta';
+  messageMeta.innerHTML = `<span class="message-time">${getCurrentTime()}</span>`;
+  
+  const messageActions = document.createElement('div');
+  messageActions.className = 'message-actions';
+  
+  // Add action buttons
+  const editButton = createActionButton('fa-edit', 'Edit', () => editMessage(messageId));
+  const deleteButton = createActionButton('fa-trash', 'Delete', () => deleteMessage(messageId));
+  messageActions.append(editButton, deleteButton);
+  
+  messageMeta.appendChild(messageActions);
+  message.appendChild(messageContent);
+  message.appendChild(messageMeta);
+  
+  return message;
+}
+function createNewChat() {
+  // Cancel edit mode if active
+  if (state.editMessageId) {
+    cancelEdit();
+    showToast("Edit mode canceled due to new chat");
+  }
+
+  state.currentChatId = generateChatId();
+  localStorage.setItem('current_chat_id', state.currentChatId);
+  
+  // Clear active files
+  state.activeFiles = [];
+  elements.uploadPreview.innerHTML = '';
+  
+  // Clear message actions
+  state.messageActions = {};
+  
+  // Clear chat container
+  elements.chatContainer.innerHTML = '';
+  
+  // Show welcome message
+  showWelcomeMessage();
+  
+  // Close history sidebar
+  elements.historySidebar.classList.remove('open');
+  
+  // Focus on input
+  elements.promptInput.focus();
+}
+
+function clearAllHistory() {
+  if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+    // Cancel edit mode if active
+    if (state.editMessageId) {
+      cancelEdit();
+      showToast("Edit mode canceled due to history clear");
+    }
+    
+    state.chatHistory = [];
+    localStorage.removeItem('gemini_chat_history');
+    renderHistoryList();
+    createNewChat();
+    showToast("Chat history cleared");
+  }
+}
+
+function renderHistoryList() {
+  elements.historyList.innerHTML = '';
+  
+  if (state.chatHistory.length === 0) {
+    const emptyState = document.createElement('div');
+    emptyState.className = 'history-empty';
+    emptyState.textContent = 'No chat history ';
+    elements.historyList.appendChild(emptyState);
+    return;
+  }
+  
+  state.chatHistory.forEach(chat => {
+    const historyItem = document.createElement('div');
+    historyItem.className = `history-item ${chat.id === state.currentChatId ? 'active' : ''}`;
+    historyItem.dataset.chatId = chat.id;
+    
+    const date = new Date(chat.timestamp);
+    const previewMessage = chat.messages.find(msg => msg.isUser) || chat.messages[0] || { content: 'Empty chat' };
+    
+    historyItem.innerHTML = `
+      <div class="history-item-title-container">
+        <div class="history-item-title">${chat.title}</div>
+        <input type="text" class="history-item-title-edit" value="${chat.title}" />
+        <div class="history-item-menu">
+          <button class="history-item-menu-btn" title="Chat actions">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="history-item-menu-content">
+            <div class="history-item-menu-item edit-title-btn">
+              <i class="fas fa-edit"></i>
+              <span>Rename</span>
+            </div>
+            <div class="history-item-menu-item delete-chat-btn">
+              <i class="fas fa-trash"></i>
+              <span>Delete</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="history-item-preview">${previewMessage.content.substring(0, 40) + (previewMessage.content.length > 40 ? '...' : '')}</div>
+      <div class="history-item-time">${formatTime(date)}</div>
+    `;
+
+    // Add click event to load chat
+    historyItem.addEventListener('click', (e) => {
+      // Only load chat if not clicking on menu items
+      if (!e.target.closest('.history-item-menu-content') && 
+          !e.target.closest('.history-item-menu-btn')) {
+        loadChat(chat.id);
+      }
+    });
+    
+    // Get menu elements
+    const menuBtn = historyItem.querySelector('.history-item-menu-btn');
+    const menuContent = historyItem.querySelector('.history-item-menu-content');
+    
+    // Toggle menu on button click
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuContent.classList.toggle('show');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.history-item-menu') && 
+          !e.target.closest('.history-item-menu-content')) {
+        menuContent.classList.remove('show');
+      }
+    });
+    
+    // Add event for delete button
+    const deleteBtn = historyItem.querySelector('.delete-chat-btn');
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuContent.classList.remove('show');
+      deleteChatHistory(chat.id);
+    });
+    
+    // Add event for edit title button
+    const editBtn = historyItem.querySelector('.edit-title-btn');
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuContent.classList.remove('show');
+      toggleEditTitle(historyItem, chat);
+    });
+    
+    // Add event for title edit input
+    const titleEdit = historyItem.querySelector('.history-item-title-edit');
+    titleEdit.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveTitleEdit(historyItem, chat, titleEdit.value);
+      } else if (e.key === 'Escape') {
+        cancelTitleEdit(historyItem);
+      }
+    });
+    
+    titleEdit.addEventListener('blur', () => {
+      saveTitleEdit(historyItem, chat, titleEdit.value);
+    });
+    
+    elements.historyList.appendChild(historyItem);
+  });
+}
+
+function deleteChatHistory(chatId) {
+  if (confirm('Are you sure you want to delete this chat?')) {
+    // If deleting current chat, create a new one
+    if (chatId === state.currentChatId) {
+      createNewChat();
+    }
+    
+    // Remove from history
+    state.chatHistory = state.chatHistory.filter(chat => chat.id !== chatId);
+    saveHistoryToStorage();
+    renderHistoryList();
+    
+    showToast('Chat deleted');
+  }
+}
+
+function toggleEditTitle(historyItem, chat) {
+  historyItem.classList.add('editing');
+  const titleEdit = historyItem.querySelector('.history-item-title-edit');
+  titleEdit.focus();
+  titleEdit.select();
+}
+
+function saveTitleEdit(historyItem, chat, newTitle) {
+  if (newTitle.trim() === '') {
+    newTitle = "Untitled Chat";
+  }
+  
+  chat.title = newTitle.trim();
+  saveHistoryToStorage();
+  historyItem.classList.remove('editing');
+  
+  // Update the title display
+  const titleDisplay = historyItem.querySelector('.history-item-title');
+  titleDisplay.textContent = chat.title;
+  
+  showToast('Chat title updated');
+}
+
+function cancelTitleEdit(historyItem) {
+  historyItem.classList.remove('editing');
+}
+
+// ================== FILE HANDLING ==================
+function handleFileSelect(e) {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+
+  let validFilesAdded = 0;
+  
+  files.forEach(file => {
+    if (!isFileValid(file)) return;
+    
+    state.activeFiles.push(file);
+    validFilesAdded++;
+  });
+  
+  if (validFilesAdded > 0) {
+    renderFilePreview();
+    showToast(`Added ${validFilesAdded} file(s)`);
+  }
+  
+  // Reset input to allow selecting same files again
+  e.target.value = '';
+}
+
+function isFileValid(file) {
+  // Check file type
+  const mimeType = file.type || getMimeType(file.name);
+  if (!CONFIG.SUPPORTED_FILE_TYPES.includes(mimeType)) {
+    showToast(`File type not supported: ${file.name}`);
+    return false;
+  }
+  
+  // Check file size
+  if (file.size > CONFIG.MAX_FILE_SIZE) {
+    showToast(`File too large (max ${CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB): ${file.name}`);
+    return false;
+  }
+  
+  // Check if file already exists
+  if (state.activeFiles.some(f => f.name === file.name && f.size === file.size)) {
+    showToast(`File already added: ${file.name}`);
+    return false;
+  }
+  
+  return true;
+}
+
+
+function renderFilePreview() {
+  elements.uploadPreview.innerHTML = '';
+  
+  state.activeFiles.forEach(file => {
+    const filePreview = document.createElement('div');
+    filePreview.className = 'file-preview';
+    filePreview.dataset.filename = file.name;
+    
+    const iconClass = getFileIconClass(file.name);
+    filePreview.innerHTML = `
+      <div class="file-icon"><i class="fas ${iconClass}"></i></div>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-size">${formatFileSize(file.size)}</div>
+      </div>
+      <button class="remove-file" data-filename="${file.name}">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    elements.uploadPreview.appendChild(filePreview);
+  });
+}
+
+function removeFile(fileName) {
+  state.activeFiles = state.activeFiles.filter(file => file.name !== fileName);
+  renderFilePreview();
+}
+
+// ================== CAMERA FUNCTIONALITY ==================
+async function startCamera() {
+  try {
+    // Stop camera if already active
+    if (state.cameraStream) stopCamera();
+    
+    // Check camera permissions
+    const cameraAllowed = await checkCameraPermissions();
+    if (!cameraAllowed) {
+      showToast("Camera access denied. Please check your browser permissions.");
+      return;
+    }
+    
+    const constraints = { 
+      video: { 
+        facingMode: state.facingMode,
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      } 
+    };
+    
+    const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      .catch(err => {
+        // Fallback to environment camera if user camera fails
+        if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+          state.facingMode = "environment";
+          return navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: "environment",
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+        }
+        throw err;
+      });
+    
+    state.cameraStream = stream;
+    elements.cameraPreview.srcObject = stream;
+    elements.cameraModal.classList.add('open');
+    
+    // Update switch camera button text based on current mode
+    const switchBtnText = state.facingMode === "user" ? "Back Camera" : "Front Camera";
+    elements.switchCamera.innerHTML = `<i class="fas fa-sync"></i> <span>${switchBtnText}</span>`;
+    
+  } catch (error) {
+    console.error("Camera error:", error);
+    showToast(`Camera error: ${error.message}`);
+  }
+}
+
+async function checkCameraPermissions() {
+  try {
+    if (navigator.permissions) {
+      const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+      return permissionStatus.state !== 'denied';
+    }
+    return true; // Permissions API not supported, proceed anyway
+  } catch (error) {
+    return true; // Fallback if permissions query fails
+  }
+}
+
+function stopCamera() {
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(track => track.stop());
+    state.cameraStream = null;
+    elements.cameraPreview.srcObject = null;
+  }
+}
+
+function closeCamera() {
+  elements.cameraModal.classList.remove('open');
+  stopCamera();
+  // Reset to front camera for next use
+  state.facingMode = "user";
+}
+
+function captureImage() {
+  if (!state.cameraStream) return;
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = elements.cameraPreview.videoWidth;
+  canvas.height = elements.cameraPreview.videoHeight;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(elements.cameraPreview, 0, 0, canvas.width, canvas.height);
+  
+  // Get data URL directly
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  
+  canvas.toBlob(blob => {
+    const fileName = `photo_${Date.now()}.jpg`;
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    
+    // Store data URL with the file for history
+    file.dataUrl = dataUrl;
+    
+    state.activeFiles.push(file);
+    renderFilePreview();
+    closeCamera();
+    showToast("Photo captured");
+  }, 'image/jpeg', 0.8);
+}
+
+function switchCamera() {
+  state.facingMode = state.facingMode === "user" ? "environment" : "user";
+  startCamera();
+}
+
+function handleModalOutsideClick(e) {
+  if (e.target === elements.cameraModal) {
+    closeCamera();
+  }
+}
+
+// ================== UI HELPERS ==================
+function showTypingIndicator() {
+  const indicator = document.createElement('div');
+  indicator.className = 'message-group typing-indicator-group';
+  
+  indicator.innerHTML = `
+    <div class="assistant-message-container">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+  `;
+  
+  elements.chatContainer.appendChild(indicator);
+  scrollToBottom();
+  
+  return indicator;
+}
+
+function removeTypingIndicator() {
+  const indicator = document.querySelector('.typing-indicator-group');
+  if (indicator) indicator.remove();
+}
+
+function showWelcomeMessage() {
+  elements.chatContainer.innerHTML = `
+    <div class="welcome-message">
+      <h2>Welcome to Lexxcy AI Assistant!</h2>
+      <p>I'm here to help you with questions, tasks, and creative projects. What would you like to know?</p>
+      
+
+
+    </div>
+  `;
+}
+
+function toggleHistorySidebar() {
+  elements.historySidebar.classList.toggle('open');
+}
+
+function toggleTheme() {
+  state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.className = `theme-${state.currentTheme}`;
+  elements.themeToggle.innerHTML = state.currentTheme === 'dark' ? 
+    '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+  
+  localStorage.setItem('theme', state.currentTheme);
+}
+
+function showToast(message, duration = 2000) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    // Pastikan toast tidak menghalangi dengan menonaktifkan pointer events
+    toast.style.pointerEvents = 'none';
+    
+    clearTimeout(toast.hideTimeout);
+    toast.hideTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+}
+
+// ================== UTILITY FUNCTIONS ==================
+function handleInput(e) {
+  autoResizeTextarea(e.target);
+  
+  // Update tombol submit berdasarkan konten
+  const hasContent = e.target.value.trim() !== '' || state.activeFiles.length > 0;
+  elements.submitBtn.disabled = !hasContent;
+  
+  // Jika ada konten, pastikan tombol bisa diklik
+  if (hasContent) {
+    elements.submitBtn.style.opacity = '1';
+    elements.submitBtn.style.cursor = 'pointer';
+  } else {
+    elements.submitBtn.style.opacity = '0.5';
+    elements.submitBtn.style.cursor = 'not-allowed';
+  }
+}
+
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    generateContent();
+  }
+}
+
+function autoResizeTextarea(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
+}
+
+function resetInput() {
+  elements.promptInput.value = '';
+  elements.promptInput.style.height = 'auto';
+  elements.submitBtn.disabled = true;
+  
+  // Reset submit button text if it was changed
+  elements.submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Send</span>';
+  
+  // Remove cancel button if it exists
+  const cancelBtn = document.getElementById('cancel-edit-btn');
+  if (cancelBtn) {
+    cancelBtn.remove();
+  }
+}
+
+function disableInput() {
+  state.isGenerating = true;
+  elements.submitBtn.disabled = true;
+  elements.promptInput.disabled = true;
+  elements.promptInput.style.cursor = 'not-allowed';
+}
+
+function enableInput() {
+  state.isGenerating = false;
+  elements.promptInput.disabled = false;
+  elements.promptInput.style.cursor = 'text';
+  elements.promptInput.focus();
+  
+  // Update tombol submit berdasarkan konten
+  const hasContent = elements.promptInput.value.trim() !== '' || state.activeFiles.length > 0;
+  elements.submitBtn.disabled = !hasContent;
+  
+  if (hasContent) {
+    elements.submitBtn.style.opacity = '1';
+    elements.submitBtn.style.cursor = 'pointer';
+  }
+}
+
+
+function generateChatId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function getCurrentTime() {
+  return formatTime(new Date());
+}
+
+function formatTime(date) {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  
+  return `${hours}:${minutes} ${ampm}`;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' bytes';
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  else return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function getFileIconClass(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  const icons = {
+    'jpg': 'fa-file-image', 'jpeg': 'fa-file-image', 'png': 'fa-file-image',
+    'gif': 'fa-file-image', 'pdf': 'fa-file-pdf', 'txt': 'fa-file-alt',
+    'doc': 'fa-file-word', 'docx': 'fa-file-word',
+    'xls': 'fa-file-excel', 'xlsx': 'fa-file-excel',
+    'ppt': 'fa-file-powerpoint', 'pptx': 'fa-file-powerpoint',
+    'zip': 'fa-file-archive', 'rar': 'fa-file-archive',
+    'mp3': 'fa-file-audio', 'wav': 'fa-file-audio',
+    'mp4': 'fa-file-video', 'avi': 'fa-file-video',
+    'html': 'fa-file-code', 'css': 'fa-file-code',
+    'js': 'fa-file-code', 'json': 'fa-file-code'
+  };
+  return icons[ext] || 'fa-file';
+}
+
+function getMimeType(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  const mimeTypes = {
+    'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
+    'gif': 'image/gif', 'pdf': 'application/pdf', 'txt': 'text/plain',
+    'doc': 'application/msword', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+async function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function createMessageElement(content, isUser, files, messageId) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+  
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+  
+  // Add files if any
+  if (files?.length > 0) {
+    const filesContainer = document.createElement('div');
+    filesContainer.className = 'message-files';
+    
+    for (const file of files) {
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'message-file';
+      
+      if (file.type?.startsWith('image/') || file.dataUrl || (typeof file === 'string' && file.startsWith('data:image/'))) {
+        const img = document.createElement('img');
+        img.src = typeof file === 'string' ? file : (file.dataUrl || URL.createObjectURL(file));
+        img.alt = 'Image preview';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '200px';
+        img.loading = 'lazy';
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-image-button';
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        copyBtn.onclick = () => copyImageToClipboard(file);
+        
+        fileDiv.appendChild(img);
+        fileDiv.appendChild(copyBtn);
+      } else {
+        const iconClass = getFileIconClass(file.name);
+        fileDiv.innerHTML = `
+          <i class="fas ${iconClass}"></i>
+          <span>${file.name}</span>
+        `;
+      }
+      
+      filesContainer.appendChild(fileDiv);
+    }
+    
+    contentDiv.appendChild(filesContainer);
+  }
+  
+  // Add text content
+  if (content) {
+    if (isUser) {
+      contentDiv.textContent = content;
+    } else {
+      contentDiv.innerHTML = marked.parse(content);
+      
+      // Highlight code blocks
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+        
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-button';
+        copyButton.innerHTML = '<i class="fas fa-copy"></i> <span>Copy</span>';
+        copyButton.onclick = () => {
+          navigator.clipboard.writeText(block.textContent);
+          showToast('Code copied to clipboard!');
+        };
+        
+        block.parentNode.insertBefore(copyButton, block);
+      });
+    }
+  }
+  
+  // Add metadata
+  const metaDiv = document.createElement('div');
+  metaDiv.className = 'message-meta';
+  
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'message-actions';
+  
+  if (isUser) {
+    actionsDiv.innerHTML = `
+      <button class="message-action" onclick="editMessage('${messageId}')">
+        <i class="fas fa-edit"></i> <span>Edit</span>
+      </button>
+      <button class="message-action" onclick="deleteMessage('${messageId}')">
+        <i class="fas fa-trash"></i> <span>Delete</span>
+      </button>
+    `;
+  } else {
+    actionsDiv.innerHTML = `
+      <button class="message-action" onclick="copyMessage('${messageId}')">
+        <i class="fas fa-copy"></i> <span>Copy</span>
+      </button>
+      <button class="message-action" onclick="adjustMessageLength('${messageId}', 'shorten')">
+        <i class="fas fa-compress"></i> <span>Shorten</span>
+      </button>
+      <button class="message-action" onclick="adjustMessageLength('${messageId}', 'expand')">
+        <i class="fas fa-expand"></i> <span>Expand</span>
+      </button>
+      <button class="message-action" onclick="deleteMessage('${messageId}')">
+        <i class="fas fa-trash"></i> <span>Delete</span>
+      </button>
+    `;
+  }
+  
+  metaDiv.innerHTML = `<span class="message-time">${getCurrentTime()}</span>`;
+  metaDiv.appendChild(actionsDiv);
+  
+  messageDiv.appendChild(contentDiv);
+  messageDiv.appendChild(metaDiv);
+  
+  return messageDiv;
+}
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function extractTextFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+async function copyImageToClipboard(file) {
+  try {
+    let imageBlob;
+    
+    if (typeof file === 'string' && file.startsWith('data:')) {
+      // Handle data URL
+      const response = await fetch(file);
+      imageBlob = await response.blob();
+    } else if (file.dataUrl) {
+      // Handle file with stored data URL
+      const response = await fetch(file.dataUrl);
+      imageBlob = await response.blob();
+    } else {
+      // Handle regular file object
+      const blob = await file.arrayBuffer();
+      imageBlob = new Blob([blob], { type: file.type });
+    }
+
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        [imageBlob.type]: imageBlob
+      })
+    ]);
+
+    showToast('Image copied to clipboard!');
+  } catch (error) {
+    console.error('Failed to copy image:', error);
+    showToast('Failed to copy image. Please try again.');
+  }
+}
+
+function saveHistoryToStorage() {
+  try {
+    const historyJSON = JSON.stringify(state.chatHistory);
+    localStorage.setItem('gemini_chat_history', historyJSON);
+  } catch (e) {
+    console.error("Error saving history:", e);
+    // If storage is full, try removing image data and keeping metadata
+    if (e.name === 'QuotaExceededError') {
+      const compressedHistory = compressHistoryForStorage(state.chatHistory);
+      try {
+        localStorage.setItem('gemini_chat_history', JSON.stringify(compressedHistory));
+        showToast("Chat history compressed due to storage limits");
+      } catch (err) {
+        // If still too large, trim history
+        state.chatHistory = state.chatHistory.slice(0, Math.max(1, CONFIG.MAX_HISTORY_ITEMS / 2));
+        saveHistoryToStorage();
+        showToast("Chat history trimmed due to storage limits");
+      }
+    }
+  }
+}
+
+function scrollToBottom() {
+  setTimeout(() => {
+    elements.chatContainer.scrollTop = elements.chatContainer.scrollHeight;
+  }, 50);
+}
+
+// ================== INITIALIZE APP ==================
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Handle MathJax rendering for assistant messages
+if (typeof MathJax !== 'undefined') {
+  MathJax.typesetPromise = function(elements) {
+    return new Promise((resolve) => {
+      MathJax.typeset(elements);
+      MathJax.startup.document.clear();
+      MathJax.startup.document.updateDocument();
+      resolve();
+    });
+  };
+}
+
+function cancelEdit() {
+  // Reset input and UI
+  resetInput();
+  
+  // Clear active files
+  state.activeFiles = [];
+  elements.uploadPreview.innerHTML = '';
+  
+  // Remove editing state
+  if (state.editMessageId) {
+    const messageElement = document.querySelector(`.message-group[data-message-id="${state.editMessageId}"]`);
+    if (messageElement) {
+      messageElement.classList.remove('editing');
+    }
+    state.editMessageId = null;
+  }
+  
+  // Remove all loading indicators
+  document.getElementById('loading-indicator').classList.remove('show');
+  removeTypingIndicator();
+  
+  // Remove edit mode indicator
+  const editIndicator = document.querySelector('.edit-mode-indicator');
+  if (editIndicator) {
+    editIndicator.remove();
+  }
+  
+  // Remove editing class from input container
+  document.querySelector('.input-container').classList.remove('editing');
+  
+  // Reset submit button
+  elements.submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+  elements.submitBtn.disabled = true;
+  
+  // Enable input
+  elements.promptInput.disabled = false;
+  
+  // Focus on input
+  elements.promptInput.focus();
+  
+  // Reset generation state
+  state.isGenerating = false;
+  if (state.abortController) {
+    state.abortController.abort();
+    state.abortController = null;
+  }
+  
+  // Clear any pending timeouts
+  if (state.typingIndicatorTimeout) {
+    clearTimeout(state.typingIndicatorTimeout);
+    state.typingIndicatorTimeout = null;
+  }
+}
+function cleanupAfterGeneration() {
+  // Clear all indicators and timeouts
+  clearTimeout(state.typingIndicatorTimeout);
+  removeTypingIndicator();
+  document.getElementById('loading-indicator').classList.remove('show');
+  
+  // Reset state
+  state.isGenerating = false;
+  state.abortController = null;
+  
+  // Enable UI
+  elements.submitBtn.disabled = false;
+  elements.promptInput.disabled = false;
+  
+  // Clear files only if generation was successful and not in edit mode
+  if (!state.isGenerating && !state.editMessageId) {
+    state.activeFiles = [];
+    elements.uploadPreview.innerHTML = '';
+  }
+  
+  // Focus on input
+  elements.promptInput.focus();
+}
+
+function handleGenerationError(error) {
+  console.error("Error:", error);
+  
+  // Remove loading indicators
+  document.getElementById('loading-indicator').classList.remove('show');
+  removeTypingIndicator();
+  
+  if (error.name === 'AbortError') {
+    appendMessage("Request canceled", false);
+    showToast("Request canceled");
+  } else {
+    const errorMessage = error.message || "An error occurred";
+    appendMessage(`Error: ${errorMessage}`, false);
+    showToast(`Error: ${errorMessage}`);
+  }
+}
+
+function compressHistoryForStorage(history) {
+  return history.map(chat => {
+    // Create a deep copy
+    const compressedChat = {...chat};
+    
+    // Modify messages to remove large image data
+    if (compressedChat.messages) {
+      compressedChat.messages = compressedChat.messages.map(msg => {
+        const compressedMsg = {...msg};
+        
+        // If message has files with image data, limit their size
+        if (compressedMsg.files && compressedMsg.files.length > 0) {
+          compressedMsg.files = compressedMsg.files.map(file => {
+            const compressedFile = {...file};
+            
+            // For image files, store a compressed thumbnail or metadata only
+            if (file.dataUrl && file.dataUrl.length > 10000) {
+              // Store just the file metadata but note that image data was compressed
+              delete compressedFile.dataUrl;
+              compressedFile.hadImage = true;
+            }
+            
+            return compressedFile;
+          });
+        }
+        
+        return compressedMsg;
+      });
+    }
+    
+    return compressedChat;
+  });
+}
+function toggleHistorySidebar() {
+  // If opening sidebar while in edit mode, cancel edit
+  if (!elements.historySidebar.classList.contains('open') && state.editMessageId) {
+    cancelEdit();
+    showToast("Edit mode canceled due to history access");
+  }
+  
+  elements.historySidebar.classList.toggle('open');
+}
+function createEditIndicator(type) {
+    const indicator = document.createElement('div');
+    indicator.className = 'edit-indicator';
+    
+    let text = '';
+    let icon = '';
+    let tooltip = '';
+    
+    switch(type) {
+        case 'edited':
+            text = 'Edited';
+            icon = 'fa-edit';
+            tooltip = 'This message was edited';
+            break;
+        case 'shortened':
+            text = 'Shortened';
+            icon = 'fa-compress';
+            tooltip = 'This message was shortened';
+            break;
+        case 'expanded':
+            text = 'Expanded';
+            icon = 'fa-expand';
+            tooltip = 'This message was expanded';
+            break;
+    }
+    
+    indicator.innerHTML = `
+        <i class="fas ${icon}" title="${tooltip}"></i>
+        <span title="${tooltip}">${text}</span>
+    `;
+    
+    return indicator;
+}
+function getMimeType(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  const mimeTypes = {
+    'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
+    'gif': 'image/gif', 'pdf': 'application/pdf', 'txt': 'text/plain',
+    'doc': 'application/msword', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+    </script>
+</body>
+</html>
